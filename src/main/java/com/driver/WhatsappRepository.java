@@ -66,16 +66,16 @@ public class WhatsappRepository {
             throw new Exception("Group does not exist");
         }
 
-//        for(Group g : groupUserMap.keySet()){
-            List<User> user = groupUserMap.get(group);
-            if(user.equals(sender)){
-                senderMap.put(message,sender);
-            }else{
-                throw new Exception("You are not allowed to send message");
-            }
-//        }
+        if(!this.userInGroup(group,sender))
+        {
+            throw new Exception("You are not allowed to send message");
+        }
 
-        List<Message> messages = groupMessageMap.get(group);
+        List<Message> messages = new ArrayList<>();
+        if(groupMessageMap.containsKey(group)) messages = groupMessageMap.get(group);
+
+        messages.add(message);
+        groupMessageMap.put(group,messages);
             return messages.size();
     }
 
@@ -93,13 +93,22 @@ public class WhatsappRepository {
             throw new Exception("Approver does not have rights");
         }
 
-        List<User> users = groupUserMap.get(group);
-        if(!users.equals(user)){
+       if(!this.userInGroup(group,user))
+        {
             throw new Exception("User is not a participant");
         }
         adminMap.put(group,user);
 
         return "SUCCESS";
+    }
+
+    public boolean userInGroup(Group group, User sender){
+        List<User> users = groupUserMap.get(group);
+        for(User user : users){
+            if(user.equals(sender))
+                return true;
+        }
+        return false;
     }
 
 
