@@ -9,10 +9,15 @@ import java.util.List;
 @Service
 public class WhatsappService {
 
-    @Autowired
-    WhatsappRepository whatsappRepository;
+
+    WhatsappRepository whatsappRepository = new WhatsappRepository();
+
+    public boolean isNewUser(String mobile) {
+        return whatsappRepository.isNewUser(mobile);
+    }
     public String createUser(String name, String mobile) throws Exception {
-        return whatsappRepository.createUser(name, mobile);
+         whatsappRepository.createUser(name, mobile);
+         return "SUCCESS";
     }
 
     public Group createGroup(List<User> users) {

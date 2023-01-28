@@ -18,7 +18,7 @@ public class WhatsappRepository {
     private int customGroupCount;
     private int messageId;
 
-    private HashMap<String,String> User;
+    private HashMap<String,User> User;
 
     public WhatsappRepository(){
         this.groupMessageMap = new HashMap<Group, List<Message>>();
@@ -32,18 +32,19 @@ public class WhatsappRepository {
     }
 
 
-    public String createUser(String name, String mobile) throws Exception{
-        if(userMobile.contains(mobile)){
-            throw new Exception("User already Exists");
-        }else{
-           User.put(name,mobile);    //adding in user hashmap
-           userMobile.add(mobile);  //adding in hashset
-        }
-        return "SUCCESS";
+    public boolean isNewUser(String mobile) {
+        if(User.containsKey(mobile)) return false;
+        return true;
+    }
+
+
+    public void createUser(String name, String mobile) throws Exception{
+        User.put(mobile, new User(name, mobile));
+
     }
 
     public Group createGroup(List<User> users){
-        Group g = new Group();
+
         if(users.size() == 2){
             String groupName = users.get(1).getName();
             Group chat = new Group(groupName, 2);
@@ -51,18 +52,18 @@ public class WhatsappRepository {
             return chat;
         }
 
-        if(users.size() > 2){
-            this.customGroupCount++;
-            g.setName("Group "+this.customGroupCount);
-            adminMap.put(g,users.get(0));
-        }
-        return g;
+        this.customGroupCount++;
+        String groupName = "Group " + this.customGroupCount;
+        Group group = new Group(groupName, users.size());
+        groupUserMap.put(group, users);
+        adminMap.put(group, users.get(0));
+        return group;
     }
 
     public int createMessage(String content){
-        messageId++;
+        this.messageId++;
         Message message = new Message(messageId,content,new Date());
-        return messageId;
+        return this.messageId;
     }
 
     public int sendMessage(Message message, User sender, Group group) throws Exception{
