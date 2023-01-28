@@ -3,6 +3,7 @@ package com.driver;
 import java.util.*;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Repository
 public class WhatsappRepository {
@@ -43,39 +44,39 @@ public class WhatsappRepository {
 
     public Group createGroup(List<User> users){
         Group g = new Group();
-       if(users.size() > 2){
-           customGroupCount++;
+        if(users.size() == 2){
+            g.setName(users.get(1).getName());
+            adminMap.put(g,users.get(0));
+        }else if(users.size() > 2){
+            customGroupCount++;
             g.setName("Group "+customGroupCount);
-           adminMap.put(g,users.get(0));
-       }else if(users.size() == 2){
-           g.setName(users.get(1).getName());
-           adminMap.put(g,users.get(0));
-       }
-       return g;
+            adminMap.put(g,users.get(0));
+        }
+        return g;
     }
 
     public int createMessage(String content){
         messageId++;
+        Message message = new Message(messageId,content,new Date());
         return messageId;
     }
 
     public int sendMessage(Message message, User sender, Group group) throws Exception{
-        //Throw "Group does not exist" if the mentioned group does not exist
-        //Throw "You are not allowed to send message" if the sender is not a member of the group
-        //If the message is sent successfully, return the final number of messages in that group.
-
-        int count = 0;
-        if(!groupUserMap.containsKey(group)){
+        if(!groupUserMap.containsKey(group.getName())){
             throw new Exception("Group does not exist");
-        }else{
-           for(Group g : groupUserMap.keySet()){
-               if(groupUserMap.get(g).equals(sender)){
-                   count++;
-                   senderMap.put(message,sender);
-               }
-           }
         }
-        return count;
+
+//        for(Group g : groupUserMap.keySet()){
+            List<User> user = groupUserMap.get(group);
+            if(user.equals(sender)){
+                senderMap.put(message,sender);
+            }else{
+                throw new Exception("You are not allowed to send message");
+            }
+//        }
+
+        List<Message> messages = groupMessageMap.get(group);
+            return messages.size();
     }
 
     public String changeAdmin(User approver, User user, Group group) throws Exception{
@@ -88,19 +89,14 @@ public class WhatsappRepository {
         if(!groupUserMap.containsKey(group)){
             throw new Exception("Group does not exist");
         }
-
-        else if(!adminMap.containsKey(approver)){
+        if(!adminMap.get(group).equals(approver)){
             throw new Exception("Approver does not have rights");
-        }else if(!User.containsKey(user)){
-            throw new Exception("User is not a participant");
-        }else{
-            for(Group g : adminMap.keySet()){
-                if(adminMap.get(g).equals(user))
-                {
-                    adminMap.put(g,user);
-                }
-            }
         }
+        if(!User.containsKey(user.getName())){
+            throw new Exception("User is not a participant");
+        }
+        adminMap.put(group,user);
+
         return "SUCCESS";
     }
 
