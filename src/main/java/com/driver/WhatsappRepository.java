@@ -48,8 +48,8 @@ public class WhatsappRepository {
             g.setName(users.get(1).getName());
             adminMap.put(g,users.get(0));
         }else if(users.size() > 2){
-            customGroupCount++;
-            g.setName("Group "+customGroupCount);
+            this.customGroupCount++;
+            g.setName("Group "+this.customGroupCount);
             adminMap.put(g,users.get(0));
         }
         return g;
@@ -92,7 +92,9 @@ public class WhatsappRepository {
         if(!adminMap.get(group).equals(approver)){
             throw new Exception("Approver does not have rights");
         }
-        if(!User.containsKey(user.getName())){
+
+        List<User> users = groupUserMap.get(group);
+        if(!users.equals(user)){
             throw new Exception("User is not a participant");
         }
         adminMap.put(group,user);
