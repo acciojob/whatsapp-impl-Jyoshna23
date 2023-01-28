@@ -24,4 +24,13 @@ public class User {
     public String getMobile(){
         return mobile;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || this.getClass() != obj.getClass()) return false;
+        User user = (User)obj;
+
+        return this.getName().equals(user.getName()) && this.getMobile().equals(user.getMobile());
+    }
 }
